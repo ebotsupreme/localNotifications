@@ -9,7 +9,9 @@ import UserNotifications
 import UIKit
 
 class ViewController: UIViewController, UNUserNotificationCenterDelegate {
-
+    var reminder = false
+    var timeInterval = 5
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -45,7 +47,15 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         dateComponents.hour = 10
         dateComponents.minute = 30
 //        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        
+        if reminder {
+            timeInterval = 86400
+            print("setting reminder timeInterval to \(timeInterval)")
+        } else {
+            timeInterval = 5
+        }
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: Double(timeInterval), repeats: false)
         
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         center.add(request)
@@ -58,13 +68,15 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         let show = UNNotificationAction(identifier: "show", title: "Tell me more...", options: .foreground)
         let score = UNNotificationAction(identifier: "score", title: "The score was...", options: .foreground)
         let buyer = UNNotificationAction(identifier: "buyer", title: "A buyer left a msg...", options: .foreground)
-        let category = UNNotificationCategory(identifier: "alarm", actions: [show, score, buyer], intentIdentifiers: [])
+        let remindMeLater = UNNotificationAction(identifier: "remindMeLater", title: "Remind me later.", options: .foreground)
+        let category = UNNotificationCategory(identifier: "alarm", actions: [show, score, buyer, remindMeLater], intentIdentifiers: [])
         
         center.setNotificationCategories([category])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
+        reminder = false
         
         if let customData = userInfo["customData"] as? String {
             print("Custom data recieved: \(customData)")
@@ -83,6 +95,10 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
             case "buyer":
                 print("Albert F. has left you a msg...")
                 
+            case "remindMeLater":
+                print("Reminding you later...")
+                reminder = true
+                scheduleLocal()
             default:
                 break
             }
