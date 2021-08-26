@@ -56,7 +56,9 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         center.delegate = self
         
         let show = UNNotificationAction(identifier: "show", title: "Tell me more...", options: .foreground)
-        let category = UNNotificationCategory(identifier: "alarm", actions: [show], intentIdentifiers: [])
+        let score = UNNotificationAction(identifier: "score", title: "The score was...", options: .foreground)
+        let buyer = UNNotificationAction(identifier: "buyer", title: "A buyer left a msg...", options: .foreground)
+        let category = UNNotificationCategory(identifier: "alarm", actions: [show, score, buyer], intentIdentifiers: [])
         
         center.setNotificationCategories([category])
     }
@@ -70,10 +72,16 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
             switch response.actionIdentifier {
             case UNNotificationDefaultActionIdentifier:
                 // the user swiped to unlock
-            print("Default identifier")
+                print("Default identifier")
                 
             case "show":
-            print("Show more information...")
+                print("Show more information...")
+                
+            case "score":
+                print("The score was 120 - 119...")
+                
+            case "buyer":
+                print("Albert F. has left you a msg...")
                 
             default:
                 break
